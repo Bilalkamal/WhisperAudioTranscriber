@@ -1,0 +1,76 @@
+import os
+import ssl
+import whisper
+import datetime
+import time
+from pydub import AudioSegment
+from tqdm import tqdm
+
+
+ # "base" , "medium", or "large" (tiny not recommended)
+MODEL_TYPE = "large" 
+
+
+def convert_ogg_to_mp3(source_directory):
+    ogg_files = [f for f in os.listdir(source_directory) if f.endswith(".ogg")]
+    for filename in tqdm(ogg_files, desc="Converting .ogg to .mp3"):
+        ogg_audio = AudioSegment.from_ogg(filename)
+        mp3_filename = filename[:-4] + ".mp3"
+        ogg_audio.export(mp3_filename, format="mp3")
+        os.remove(filename)
+
+def transcribe_audio(source_directory, model, mp3_directory, txt_directory):
+    mp3_files = [f for f in os.listdir(source_directory) if f.endswith(".mp3")]
+    all_texts = ""
+    for filename in tqdm(mp3_files, desc="Transcribing .mp3 files"):
+        result = model.transcribe(filename, fp16=False)
+        txt_filename = filename[:-4] + ".txt"
+
+        with open(txt_filename, "w") as f:
+            f.write(result["text"])
+
+        all_texts += result["text"] + "\n"
+
+        os.rename(filename, os.path.join(mp3_directory, filename))
+        os.rename(txt_filename, os.path.join(txt_directory, txt_filename))
+
+    return all_texts
+
+def main():
+    # Start the timer
+    start_time = time.time()
+
+    # Disable SSL verification (not recommended for production)
+    ssl._create_default_https_context = ssl._create_unverified_context
+
+    # Load Whisper model
+    model = whisper.load_model(MODEL_TYPE)
+
+    # Directories setup
+    current_directory = os.getcwd()
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    mp3_directory = os.path.join(current_directory, "mp3", today)
+    txt_directory = os.path.join(current_directory, "txt", today)
+
+    os.makedirs(mp3_directory, exist_ok=True)
+    os.makedirs(txt_directory, exist_ok=True)
+
+    # Convert .ogg to .mp3
+    convert_ogg_to_mp3(current_directory)
+
+    # Transcribe .mp3 files
+    all_texts = transcribe_audio(current_directory, model, mp3_directory, txt_directory)
+
+    # Print all transcribed text
+    print("Transcribed Texts:")
+    print(all_texts)
+
+    # Print the directory of the output .txt files
+    print(f"The directory of the output .txt files: {txt_directory}")
+
+    # End the timer and print the duration
+    end_time = time.time()
+    print(f"Process completed in {end_time - start_time:.2f} seconds.")
+
+if __name__ == "__main__":
+    main()
