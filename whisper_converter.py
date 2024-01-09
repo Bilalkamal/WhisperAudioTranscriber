@@ -6,10 +6,8 @@ import time
 from pydub import AudioSegment
 from tqdm import tqdm
 
-
- # "base" , "medium", or "large" (tiny not recommended)
-MODEL_TYPE = "large" 
-
+# "base" , "medium", or "large" ("tiny" not recommended for multilingual)
+MODEL_TYPE = "medium"
 
 def convert_ogg_to_mp3(source_directory):
     ogg_files = [f for f in os.listdir(source_directory) if f.endswith(".ogg")]
@@ -18,6 +16,22 @@ def convert_ogg_to_mp3(source_directory):
         mp3_filename = filename[:-4] + ".mp3"
         ogg_audio.export(mp3_filename, format="mp3")
         os.remove(filename)
+
+def convert_mp4_to_mp3(source_directory):
+    mp4_files = [f for f in os.listdir(source_directory) if f.endswith(".mp4")]
+    for filename in tqdm(mp4_files, desc="Converting .mp4 to .mp3"):
+        mp4_audio = AudioSegment.from_file(filename, "mp4")
+        mp3_filename = filename[:-4] + ".mp3"
+        mp4_audio.export(mp3_filename, format="mp3")
+        os.remove(filename)
+
+def convert_m4a_to_mp3(source_directory):
+    m4a_files = [f for f in os.listdir(source_directory) if f.endswith(".m4a")]
+    for filename in tqdm(m4a_files, desc="Converting .m4a to .mp3"):
+        m4a_audio = AudioSegment.from_file(filename, "m4a")
+        mp3_filename = filename[:-4] + ".mp3"
+        m4a_audio.export(mp3_filename, format="mp3")
+        os.remove(filename)  
 
 def transcribe_audio(source_directory, model, mp3_directory, txt_directory):
     mp3_files = [f for f in os.listdir(source_directory) if f.endswith(".mp3")]
@@ -57,6 +71,8 @@ def main():
 
     # Convert .ogg to .mp3
     convert_ogg_to_mp3(current_directory)
+    convert_mp4_to_mp3(current_directory)
+    convert_m4a_to_mp3(current_directory)
 
     # Transcribe .mp3 files
     all_texts = transcribe_audio(current_directory, model, mp3_directory, txt_directory)
