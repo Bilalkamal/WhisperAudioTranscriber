@@ -13,7 +13,7 @@ def convert_ogg_to_mp3(source_directory):
     ogg_files = [f for f in os.listdir(source_directory) if f.endswith(".ogg")]
     for filename in tqdm(ogg_files, desc="Converting .ogg to .mp3"):
         ogg_audio = AudioSegment.from_ogg(filename)
-        mp3_filename = filename[:-4] + ".mp3"
+        mp3_filename = f"{filename[:-4]}.mp3"
         ogg_audio.export(mp3_filename, format="mp3")
         os.remove(filename)
 
@@ -21,7 +21,7 @@ def convert_mp4_to_mp3(source_directory):
     mp4_files = [f for f in os.listdir(source_directory) if f.endswith(".mp4")]
     for filename in tqdm(mp4_files, desc="Converting .mp4 to .mp3"):
         mp4_audio = AudioSegment.from_file(filename, "mp4")
-        mp3_filename = filename[:-4] + ".mp3"
+        mp3_filename = f"{filename[:-4]}.mp3"
         mp4_audio.export(mp3_filename, format="mp3")
         os.remove(filename)
 
@@ -29,7 +29,7 @@ def convert_m4a_to_mp3(source_directory):
     m4a_files = [f for f in os.listdir(source_directory) if f.endswith(".m4a")]
     for filename in tqdm(m4a_files, desc="Converting .m4a to .mp3"):
         m4a_audio = AudioSegment.from_file(filename, "m4a")
-        mp3_filename = filename[:-4] + ".mp3"
+        mp3_filename = f"{filename[:-4]}.mp3"
         m4a_audio.export(mp3_filename, format="mp3")
         os.remove(filename)  
 
@@ -37,8 +37,9 @@ def transcribe_audio(source_directory, model, mp3_directory, txt_directory):
     mp3_files = [f for f in os.listdir(source_directory) if f.endswith(".mp3")]
     all_texts = ""
     for filename in tqdm(mp3_files, desc="Transcribing .mp3 files"):
+        print(f"Transcribing {filename}...")
         result = model.transcribe(filename, fp16=False)
-        txt_filename = filename[:-4] + ".txt"
+        txt_filename = f"{filename[:-4]}.txt"
 
         with open(txt_filename, "w") as f:
             f.write(result["text"])
