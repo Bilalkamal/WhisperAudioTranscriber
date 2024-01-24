@@ -16,7 +16,7 @@ networkx==3.2.1
 numba==0.58.1
 numpy==1.26.2
 openai-whisper==20231117
-Pillow==10.1.0
+Pillow==10.2.0
 proglog==0.1.10
 pydub==0.25.1
 regex==2023.10.3
