@@ -20,7 +20,7 @@ def convert_ogg_to_mp3(source_directory):
 def convert_mp4_to_mp3(source_directory):
     mp4_files = [f for f in os.listdir(source_directory) if f.endswith(".mp4")]
     for filename in tqdm(mp4_files, desc="Converting .mp4 to .mp3"):
-        mp4_audio = AudioSegment.from_file(filename, "mp4")
+        mp4_audio = AudioSegment.from_file(filename,    "mp4")
         mp3_filename = f"{filename[:-4]}.mp3"
         mp4_audio.export(mp3_filename, format="mp3")
         os.remove(filename)
@@ -75,17 +75,13 @@ def main():
     convert_mp4_to_mp3(current_directory)
     convert_m4a_to_mp3(current_directory)
 
-    # Transcribe .mp3 files
     all_texts = transcribe_audio(current_directory, model, mp3_directory, txt_directory)
 
-    # Print all transcribed text
     print("Transcribed Texts:")
     print(all_texts)
 
-    # Print the directory of the output .txt files
     print(f"The directory of the output .txt files: {txt_directory}")
 
-    # End the timer and print the duration
     end_time = time.time()
     print(f"Process completed in {end_time - start_time:.2f} seconds.")
 
